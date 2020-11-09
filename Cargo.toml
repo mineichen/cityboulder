@@ -1,0 +1,2 @@
+[workspace]
+members = ["cityboulder_crawler", "cityboulder_data"]

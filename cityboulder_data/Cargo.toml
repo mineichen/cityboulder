@@ -1,0 +1,17 @@
+[package]
+name = "cityboulder_data"
+version = "0.1.0"
+authors = ["Markus Ineichen <kusi.ineichen@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+chrono = { version = "0.4.19", features = ["serde"]}
+diesel = { version = "1.4.5", features = ["sqlite", "chrono"] }
+diesel_migrations = "1.4.0"
+serde = "1.0"
+serde_derive = "1.0"
+
+[target.x86_64-unknown-linux-musl.dependencies]
+libsqlite3-sys = { version = "*", features = ["bundled"] }
