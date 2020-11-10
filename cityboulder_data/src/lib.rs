@@ -42,8 +42,21 @@ impl VisitorRepository {
     }
     pub fn load(&self) -> Vec<models::Visitors> {
         visitors//.filter(id.eq(1))
-            .limit(5)
+            //.limit(50)
             .load::<models::Visitors>(&self.conn)
             .expect("Error loading posts")
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::{Utc, Local, DateTime};
+    #[test]
+    fn test() {
+        let now =Local::now();
+        let naive = chrono::NaiveDateTime::from_timestamp(3600, 0);
+        let local = DateTime::<Local>::from_utc(naive, *now.offset());
+        let utc = DateTime::<Utc>::from_utc(naive, Utc);
+        dbg!(local, utc, local.naive_local(), utc.naive_local());
     }
 }

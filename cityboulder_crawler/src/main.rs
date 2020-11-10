@@ -39,8 +39,4 @@ fn main() {
     let repo = cityboulder_data::VisitorRepository::new(&sqlite_path);
     repo.run_migration();
     repo.save_visitor_lookup(&lookup);
-    
-    for visitor in repo.load() {
-        println!("Got a visitor with id: {}", serde_json::to_string(&visitor).unwrap());
-    }
 }

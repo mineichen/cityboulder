@@ -1,2 +1,2 @@
 [workspace]
-members = ["cityboulder_crawler", "cityboulder_data"]
+members = ["cityboulder_crawler", "cityboulder_data", "cityboulder_web"]

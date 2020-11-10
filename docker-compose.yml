@@ -2,5 +2,13 @@ version: "3.8"
 services:
   crawler:
     build:
-      context: ./
-      dockerfile: cityboulder_crawler/Dockerfile
+      context: "."
+      args:
+        PROJECT_NAME: cityboulder_crawler
+    image: cityboulder_crawler:${CITYBOULDER_VERSION}
+  web:
+    build:
+      context: "."
+      args:
+        PROJECT_NAME: cityboulder_web
+    image: cityboulder_web:${CITYBOULDER_VERSION}
