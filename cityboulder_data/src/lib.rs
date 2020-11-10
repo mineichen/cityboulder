@@ -8,6 +8,8 @@ extern crate diesel_migrations;
 use self::schema::visitors::dsl::*;
 use diesel::prelude::*;
 use diesel_migrations::embed_migrations;
+use std::pin::Pin;
+use core::task::{Context, Poll};
 
 mod schema;
 mod models;
@@ -40,11 +42,25 @@ impl VisitorRepository {
             .execute(&self.conn)
             .expect("Error saving new post");
     }
-    pub fn load(&self) -> Vec<models::Visitors> {
-        visitors//.filter(id.eq(1))
-            //.limit(50)
-            .load::<models::Visitors>(&self.conn)
-            .expect("Error loading posts")
+    pub fn load(&self) -> impl futures::Stream<Item=Visitors> {        
+        VisitorsStream(
+            visitors//.filter(id.eq(1))
+                .load::<models::Visitors>(&self.conn)
+                .expect("Error loading posts").into_iter()
+        )
+    }
+}
+
+struct VisitorsStream(<Vec<Visitors> as IntoIterator>::IntoIter);
+
+impl futures::Stream for VisitorsStream {
+    type Item = Visitors;
+
+    fn poll_next(
+        mut self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+    ) -> Poll<Option<Self::Item>> {        
+        core::task::Poll::Ready(self.0.next())
     }
 }
 #[cfg(test)]

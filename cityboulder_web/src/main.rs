@@ -1,29 +1,31 @@
 use actix_web::{web, App, HttpServer, HttpResponse, middleware::Logger};
 use actix_files::Files;
 use env_logger::Env;
-use std::fmt::Write;
+use futures::prelude::*;
 
 async fn get() -> Result<HttpResponse, actix_web::Error> {
-    let res = web::block::<_,_,std::fmt::Error>(|| {
-        let visits = cityboulder_data::VisitorRepository::new("sqlite.db").load();
-        
-        let mut buff = String::new();
-        for visit in visits.iter() {
-            writeln!(
-                &mut buff, 
-                "{},{}", 
-                visit.recorded_at.format("%Y-%m-%d %H:%M:%S UTC"), 
-                visit.guest_count
-            )?;
-        }
-
-        Ok(buff)
+    let stream = web::block::<_,_,std::io::Error>(|| {
+        Ok(cityboulder_data::VisitorRepository::new("sqlite.db").load())
     }).await.map_err(|e| {
         eprintln!("{}", e);
         HttpResponse::InternalServerError().finish()
     })?;
     
-    HttpResponse::Ok().body(res).await
+    HttpResponse::Ok().streaming::<_, actix_web::Error>(stream.map(|visit| {
+        let mut buf = actix_web::web::BytesMut::new();
+        use std::fmt::Write;
+        writeln!(
+            &mut buf,
+            "{},{}", 
+            visit.recorded_at.format("%Y-%m-%d %H:%M:%S UTC"), 
+            visit.guest_count
+        ).map_err(|e| {
+            eprintln!("{}", e);
+            HttpResponse::InternalServerError().finish()
+        })?;
+        
+        Ok(buf.into())
+    })).await
 }
 
 #[actix_web::main]

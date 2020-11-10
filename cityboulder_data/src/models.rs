@@ -1,6 +1,6 @@
 use super::schema::visitors;
 
-#[derive(Queryable, PartialEq, Debug, Serialize)]
+#[derive(Queryable, PartialEq, Debug, Copy, Clone, Serialize)]
 pub struct Visitors {
     pub id: i32,
     pub guest_count: i32,
